@@ -26,14 +26,15 @@ rm ${target_tar} > /dev/null 2>&1
 subdirs=`find ${dir_to_tar} -type d -print`
 files=`find ${dir_to_tar} \! -type d -print`
 for f in ${subdirs} ${files} ; do
+    f=${f#./}
     curr_perms=`stat -c 0%a $f`
     [ -d "$f" ] && is_dir=1 || is_dir=0
     new_info=`${fs_get_stats} ${curr_perms} ${is_dir} ${f}`
     new_uid=`echo ${new_info} | awk '{print $1;}'`
     new_gid=`echo ${new_info} | awk '{print $2;}'`
     new_perms=`echo ${new_info} | awk '{print $3;}'`
-#    echo "$f: dir: $is_dir curr: $curr_perms uid: $new_uid gid: $new_gid "\
-#         "perms: $new_perms"
+    #echo "$f: dir: $is_dir curr: $curr_perms uid: $new_uid gid: $new_gid "\
+    #     "perms: $new_perms"
     tar --no-recursion --numeric-owner --owner $new_uid \
         --group $new_gid --mode $new_perms -p -rf ${target_tar} ${f}
 done
